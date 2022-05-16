@@ -14,7 +14,7 @@
     android:src="@drawable/ic_android_black_24dp"/>
 
   <TextView
-    android:id="@+id/textView"
+    android:id="@+id/itemTextView"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     app:layout_constraintTop_toTopOf="@id/itemImageView"
@@ -27,10 +27,10 @@
     android:id="@+id/getImageButton"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    app:layout_constraintStart_toEndOf="@id/textView"
-    app:layout_constraintTop_toTopOf="@id/textView"
+    app:layout_constraintStart_toEndOf="@id/itemTextView"
+    app:layout_constraintTop_toTopOf="@id/itemTextView"
     android:layout_marginStart="30dp"
-    app:layout_constraintBottom_toBottomOf="@id/textView"
+    app:layout_constraintBottom_toBottomOf="@id/itemTextView"
     android:text="사진선택"/>
 
 
