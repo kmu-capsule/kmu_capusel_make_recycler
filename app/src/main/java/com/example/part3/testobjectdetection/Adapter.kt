@@ -4,6 +4,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -15,7 +16,10 @@ class Adapter(val mButtonClickListener : (String) -> Unit) : ListAdapter<detecte
     inner class ViewHolder(itemView : View) : RecyclerView.ViewHolder(itemView) {
         fun bind(item : detectedItem) {
             val itemTextView = itemView.findViewById<TextView>(R.id.itemTextView)
+            val itemImageView = itemView.findViewById<ImageView>(R.id.itemImageView)
+
             itemTextView.text = item.name
+            itemImageView.setImageURI(item.uri)
 
             itemView.findViewById<Button>(R.id.getImageButton).setOnClickListener {
                 mButtonClickListener(itemTextView.text.toString())
