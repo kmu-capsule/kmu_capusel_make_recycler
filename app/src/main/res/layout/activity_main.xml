@@ -25,8 +25,23 @@
       android:layout_height="260dp"
       android:scaleType="centerCrop"
       android:src="@drawable/ic_baseline_airport_shuttle_24"
+      android:layout_marginTop="20dp"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toBottomOf="@id/Title">
   </ImageButton>
+
+  <Button
+      android:id="@+id/ImageUpload"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="Image upload"
+      app:layout_constraintLeft_toLeftOf="parent"
+      app:layout_constraintRight_toRightOf="parent"
+      app:layout_constraintTop_toBottomOf="@id/ImageSelect"
+      android:layout_marginTop="15dp"
+      android:textSize="16sp"
+      android:backgroundTint="#004097"
+      >
+  </Button>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
