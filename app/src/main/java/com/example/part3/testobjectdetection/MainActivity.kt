@@ -38,7 +38,11 @@ class MainActivity : AppCompatActivity() {
         }
 
         ImageUpload.setOnClickListener {
-            ImageUploadToStorage()
+            val intent= Intent(this,DetectActivity::class.java)
+            intent.putExtra("ImagePath", ImageURI.toString())
+            setResult(1000,intent)
+            finish()
+            //ImageUploadToStorage()
         }
     }
 
