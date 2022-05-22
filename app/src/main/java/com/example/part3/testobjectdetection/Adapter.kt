@@ -6,15 +6,15 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.net.toUri
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClickListener
 
-class Adapter(val mButtonClickListener : (String) -> Unit) : ListAdapter<detectedItem,Adapter.ViewHolder>(diffUtil){
+class Adapter(val mButtonClickListener : (String) -> Unit) : ListAdapter<DetectedItem,Adapter.ViewHolder>(diffUtil){
 
     inner class ViewHolder(itemView : View) : RecyclerView.ViewHolder(itemView) {
-        fun bind(item : detectedItem) {
+        fun bind(item : DetectedItem) {
             val itemTextView = itemView.findViewById<TextView>(R.id.itemTextView)
             val itemImageView = itemView.findViewById<ImageView>(R.id.itemImageView)
 
@@ -38,12 +38,12 @@ class Adapter(val mButtonClickListener : (String) -> Unit) : ListAdapter<detecte
 
 
     companion object {
-        val diffUtil = object : DiffUtil.ItemCallback<detectedItem>() {
-            override fun areItemsTheSame(oldItem: detectedItem, newItem: detectedItem): Boolean {
+        val diffUtil = object : DiffUtil.ItemCallback<DetectedItem>() {
+            override fun areItemsTheSame(oldItem: DetectedItem, newItem: DetectedItem): Boolean {
                 return oldItem == newItem
             }
 
-            override fun areContentsTheSame(oldItem: detectedItem, newItem: detectedItem): Boolean {
+            override fun areContentsTheSame(oldItem: DetectedItem, newItem: DetectedItem): Boolean {
                 return  oldItem.name == newItem.name
             }
         }

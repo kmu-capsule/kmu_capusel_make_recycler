@@ -2,7 +2,9 @@ package com.example.part3.testobjectdetection
 
 import android.net.Uri
 
-data class detectedItem(
+data class UploadModel(
     val name : String,
-    var uri : Uri?
-)
+    val url : String?
+){
+    constructor() : this("",null)
+}
