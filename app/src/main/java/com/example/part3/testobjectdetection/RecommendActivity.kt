@@ -48,7 +48,7 @@ class RecommendActivity : AppCompatActivity() {
 //                putExtra(MainActivity.STRING_INTENT_KEY, selectedImageURI)
                 data = selectedImageURI
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-`
+
                 putExtra(MainActivity.STRING_INTENT_ITEM_FROM_RECOMMEND_KEY, itemName)
             }
             setResult(Activity.RESULT_OK, intent)
