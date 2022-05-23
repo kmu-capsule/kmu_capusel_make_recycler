@@ -4,6 +4,7 @@ import android.R.attr.data
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
+import android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION
 import android.database.Cursor
 import android.net.Uri
 import android.os.Build
@@ -44,7 +45,7 @@ class MainActivity : AppCompatActivity() {
 //    }
 
     private val gotItemList = mutableListOf<DetectedItem>()
-    private lateinit var mAdatper : Adapter
+    private lateinit var mAdatper: Adapter
     private lateinit var getImageURI: ActivityResultLauncher<Intent>
 
     @RequiresApi(Build.VERSION_CODES.M)
@@ -55,9 +56,9 @@ class MainActivity : AppCompatActivity() {
         db = Firebase.database.reference
 
         // 데이터를 받아왔다는 전제하, 데이터를 넘겨줄때는 detectedItem에서 itemname을 가져오고 이미지 uri를 null값을 줌
-        gotItemList.add(DetectedItem("신발",null))
-        gotItemList.add(DetectedItem("모자",null))
-        gotItemList.add(DetectedItem("가방",null))
+        gotItemList.add(DetectedItem("신발", null))
+        gotItemList.add(DetectedItem("모자", null))
+        gotItemList.add(DetectedItem("가방", null))
 //        gotItemList.add(DetectedItem("노트북",null))
 
         // 물체가 인식 된 후,인식된 물체가 리스트로 넘어온다고 가정
@@ -75,19 +76,23 @@ class MainActivity : AppCompatActivity() {
     private fun initSubmitButton() {
         val submitButton = findViewById<Button>(R.id.submitButton)
         submitButton.setOnClickListener {
-            Log.d(TAG,"on Clicked initSubmitButton !! ")
+            Log.d(TAG, "on Clicked initSubmitButton !! ")
             gotItemList.forEach { item ->
-                if(item.uri == null ) {Log.d(TAG,"image src is null !")}
-                else {
-                    Log.d(TAG,"forEach RUN item.uri : ${item.uri} ")
+                if (item.uri == null) {
+                    Log.d(TAG, "image src is null !")
+                } else {
+                    Log.d(TAG, "forEach RUN item.uri : ${item.uri} ")
                     // uri 즉 이미지가 등록된 사진들만 파이어베이스에 저장시켜야함
 //                    dummyUploader()
                     uploadPhotoToFirebase(item.uri!!,
                         mSuccessHandler = { url ->
-                        saveObjectSetToDatabase(FB_DB_USER_AUTH_KEY, FB_DB_CAPSULE_KEY, item.name, url)
-                    }, mErrorHandler = {
-                        Toast.makeText(this,"사진 저장에 실패 했습니다",Toast.LENGTH_SHORT).show()
-                    })
+                            saveObjectSetToDatabase(FB_DB_USER_AUTH_KEY,
+                                FB_DB_CAPSULE_KEY,
+                                item.name,
+                                url)
+                        }, mErrorHandler = {
+                            Toast.makeText(this, "사진 저장에 실패 했습니다", Toast.LENGTH_SHORT).show()
+                        })
                 }
             }
         }
@@ -107,68 +112,85 @@ class MainActivity : AppCompatActivity() {
 //            }
     }
 
-    private fun uploadPhotoToFirebase(mUri : Uri, mSuccessHandler : (String) -> Unit, mErrorHandler : ()-> Unit ) {
+    private fun uploadPhotoToFirebase(
+        mUri: Uri,
+        mSuccessHandler: (String) -> Unit,
+        mErrorHandler: () -> Unit,
+    ) {
         val fileName = "${System.currentTimeMillis()}.png"
         storage.reference.child("object/photo").child(fileName)
             .putFile(mUri)
-            .addOnCompleteListener{ mIt ->
-                if ( mIt.isSuccessful ) {
-                    Log.d(TAG,"isSuccessful !")
+            .addOnCompleteListener { mIt ->
+                if (mIt.isSuccessful) {
+                    Log.d(TAG, "isSuccessful !")
                     // 파일 업로드 성공 시
                     storage.reference.child("object/photo").child(fileName).downloadUrl
                         .addOnSuccessListener { url ->
-                            Log.d(TAG,"url  : ${url}")
+                            Log.d(TAG, "url  : ${url}")
                             mSuccessHandler(url.toString())
                         }
-                }else {
+                } else {
                     // 파일 업로드 실패 시
                     mErrorHandler()
                 }
             }
     }
 
-    private fun saveObjectSetToDatabase(dummyFbDbUserAuthKey: String, dummyFbDbCapsuleKey: String, name: String, url: String) {
+    private fun saveObjectSetToDatabase(
+        dummyFbDbUserAuthKey: String,
+        dummyFbDbCapsuleKey: String,
+        name: String,
+        url: String,
+    ) {
         val userDB = db.child("Users").child(FB_DB_USER_AUTH_KEY).child(FB_DB_CAPSULE_KEY)
-        val uploadModel = UploadModel(name,url)
+        val uploadModel = UploadModel(name, url)
         userDB.push().setValue(uploadModel)
             .addOnCompleteListener {
-            if(it.isSuccessful) {
-                Toast.makeText(this,"캡슐 저장에 성공했습니다",Toast.LENGTH_SHORT).show()
-            }else {
-                Toast.makeText(this,"캡슐 저장에 실패 했습니다",Toast.LENGTH_SHORT).show()
-                Log.d(TAG,"리얼타임 데이터베이스에 저장 실패")
+                if (it.isSuccessful) {
+                    Toast.makeText(this, "캡슐 저장에 성공했습니다", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(this, "캡슐 저장에 실패 했습니다", Toast.LENGTH_SHORT).show()
+                    Log.d(TAG, "리얼타임 데이터베이스에 저장 실패")
+                }
             }
-        }
 
     }
 
 
-
+    @SuppressLint("WrongConstant")
     private fun initActivityResultRegister() {
         //         uri값을 반환받기 위한 콜백함수
-        getImageURI = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){ result ->
-            if (result.resultCode == Activity.RESULT_OK) {
+        getImageURI =
+            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+                if (result.resultCode == Activity.RESULT_OK) {
 
 //                val uri = result.data?.getStringExtra(STRING_INTENT_KEY)
-                val uri = result.data?.getParcelableExtra<Uri>(STRING_INTENT_KEY)
-                val itemName = result.data?.getStringExtra(STRING_INTENT_ITEM_FROM_RECOMMEND_KEY)
+//                    val uri = result.data?.getParcelableExtra<Uri>(STRING_INTENT_KEY)
+                    val uri = result.data?.data
+//                    val takeFlags = intent.flags and (Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+                    Log.d(TAG, "intent result.data = ${result.data?.data}")
+                    val itemName =
+                        result.data?.getStringExtra(STRING_INTENT_ITEM_FROM_RECOMMEND_KEY)
 
-                if (uri == null ) {
-                    Log.d(TAG,"uri값을 가져오지 못했습니다")
-                    return@registerForActivityResult
-                }
+                    if (uri == null) {
+                        Log.d(TAG, "uri값을 가져오지 못했습니다")
+                        return@registerForActivityResult
+                    }
+//                    this.contentResolver.takePersistableUriPermission(uri, takeFlags)
 
-//                getContentResolver().takePersistableUriPermission(uri.toUri(), Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                Log.d(TAG,"${uri}")
+                    Log.d(TAG, "${uri}")
+//                this.contentResolver.takePersistableUriPermission(uri, FLAG_GRANT_READ_URI_PERMISSION)
+//                contentResolver.takePersistableUriPermission(uri,Intent.FLAG_GRANT_READ_URI_PERMISSION)
+//                getContentResolver().takePersistablePermission(uri., Intent.FLAG_GRANT_READ_URI_PERMISSION)
 //                gotItemList.add(detectedItem("Random().toString()", uri.toUri()))
-                // find로 아이템을 찾은후, 해당 uri값만 변경 후 리스트 변화를 등록해줌
-                gotItemList.find { it.name == itemName }?.let {
-                    it.uri = uri
-                    Log.d(TAG,"update url done")
+                    // find로 아이템을 찾은후, 해당 uri값만 변경 후 리스트 변화를 등록해줌
+                    gotItemList.find { it.name == itemName }?.let {
+                        it.uri = uri
+                        Log.d(TAG, "update url done")
+                    }
+                    mAdatper.notifyDataSetChanged()
                 }
-                mAdatper.notifyDataSetChanged()
             }
-        }
     }
 
     private fun initRecyclerView() {
@@ -180,11 +202,11 @@ class MainActivity : AppCompatActivity() {
         mAdatper.submitList(gotItemList)
     }
 
-    private fun onButtonClickedListener(name : String) {
+    private fun onButtonClickedListener(name: String) {
         // launch를 작동시켜 인탠트 전환하고, onCreate에서 콜백함수로 결과를 받아옴
-        Toast.makeText(this,"${name}, button clicked!!",Toast.LENGTH_SHORT).show()
-        val intent = Intent(this,RecommendActivity::class.java)
-        intent.putExtra(STRING_INTENT_ITEM_KEY,name)
+        Toast.makeText(this, "${name}, button clicked!!", Toast.LENGTH_SHORT).show()
+        val intent = Intent(this, RecommendActivity::class.java)
+        intent.putExtra(STRING_INTENT_ITEM_KEY, name)
 //        getContent.launch(intent)
         getImageURI.launch(intent)
 //        startActivity(intent)
@@ -194,6 +216,7 @@ class MainActivity : AppCompatActivity() {
 
 
     }
+
     companion object {
         const val STRING_INTENT_KEY = "imageURI"
         const val STRING_INTENT_ITEM_KEY = "itemName"

@@ -45,7 +45,10 @@ class RecommendActivity : AppCompatActivity() {
 
             val intent = Intent(this, MainActivity::class.java).apply {
                 Log.d(TAG, "${selectedImageURI}")
-                putExtra(MainActivity.STRING_INTENT_KEY, selectedImageURI)
+//                putExtra(MainActivity.STRING_INTENT_KEY, selectedImageURI)
+                data = selectedImageURI
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+`
                 putExtra(MainActivity.STRING_INTENT_ITEM_FROM_RECOMMEND_KEY, itemName)
             }
             setResult(Activity.RESULT_OK, intent)
@@ -93,7 +96,8 @@ class RecommendActivity : AppCompatActivity() {
 
     private fun getImageFromGallery() {
         Toast.makeText(this, " 갤러리로 이동합니다!!", Toast.LENGTH_SHORT).show()
-        val intent = Intent(Intent.ACTION_GET_CONTENT)
+//        val intent = Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
         intent.type = "image/*"
         startActivityForResult(intent, 2000)
     }
@@ -123,10 +127,10 @@ class RecommendActivity : AppCompatActivity() {
                 }
 
                 // 받아온 uri값에 대한 권한 유지
-//                val takeFlags = intent.flags and (Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+                val takeFlags = intent.flags and (Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
                 selectedImageURI = data?.data!!
                 Log.d(TAG,"taskFlags!!")
-//                this.contentResolver.takePersistableUriPermission(selectedImageURI, takeFlags)
+                this.contentResolver.takePersistableUriPermission(selectedImageURI, takeFlags)
                 val testImageView = findViewById<ImageView>(R.id.testImageView)
                 testImageView.setImageURI(selectedImageURI)
 
